@@ -1,5 +1,6 @@
 //! Contains [Package], [RawPackage] and implementations
 
+use crate::validation::*;
 use crate::Result;
 use sqlx::{FromRow, SqlitePool};
 
@@ -28,6 +29,10 @@ impl Package {
         hash: String,
         depends_on: Vec<i64>,
     ) -> Result<Self> {
+        validate_name(&name)?;
+        validate_version(&version)?;
+        validate_hash(&hash)?;
+
         let id = sqlx::query!(
             "INSERT INTO package (name, version, hash) VALUES (?, ?, ?)",
             name,
@@ -58,6 +63,9 @@ impl Package {
         name: String,
         version: String,
     ) -> Result<Option<Self>> {
+        validate_name(&name)?;
+        validate_version(&version)?;
+
         Self::from_opt_rawpkg(pool, RawPackage::from_namver(pool, name, version).await?).await
     }
 

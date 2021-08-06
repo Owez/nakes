@@ -3,6 +3,8 @@
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
 
+pub(crate) mod validation;
+
 mod errors;
 mod package;
 

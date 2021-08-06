@@ -9,6 +9,8 @@ pub enum Error {
     Database(sqlx::Error),
     /// Validation error
     Validation(ValidationError),
+    /// Duplicate item in database found
+    DuplicateDatabaseItem,
 }
 
 impl fmt::Display for Error {
@@ -16,13 +18,14 @@ impl fmt::Display for Error {
         match self {
             Error::Database(err) => write!(f, "Database error ({})", err),
             Error::Validation(err) => write!(f, "Validation error, {}", err),
+            Error::DuplicateDatabaseItem => write!(f, "Duplicate item in database found"),
         }
     }
 }
 
 impl From<sqlx::Error> for Error {
     fn from(err: sqlx::Error) -> Self {
-        Self::Database(err)
+        Self::Database(err) // TODO: match to Error::DuplicateDatabaseItem
     }
 }
 

@@ -4,6 +4,9 @@ use crate::validation::*;
 use crate::Result;
 use sqlx::{FromRow, SqlitePool};
 
+const PYPI_URL_PREFIX: &str = "https://pypi.org/pypi/";
+const PYPI_URL_SUFFIX: &str = "/json";
+
 /// Representation of a single package which may be saved to a lockfiles
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Package {
@@ -52,13 +55,30 @@ impl Package {
         })
     }
 
-    /// Fetches existing package from id
-    pub async fn from_id(pool: &SqlitePool, id: i64) -> Result<Option<Self>> {
+    /// Deeply fetches a package from name and version
+    ///
+    /// - First, this method tries to search the lockfile for the existing package and returns
+    /// - If not, we fetch from the pypi api along with all dependents and store each one
+    pub async fn from_namver(
+        pool: &SqlitePool,
+        name: String,
+        version: String,
+    ) -> Result<Option<Self>> {
+        let _resp = match Self::load_from_namver(pool, name.clone(), version).await? {
+            Some(pkg) => return Ok(Some(pkg)),
+            None => reqwest::get(format!("{}{}{}", PYPI_URL_PREFIX, name, PYPI_URL_SUFFIX)).await?,
+        };
+
+        todo!("decode response")
+    }
+
+    /// Loads existing package from id; includes dependents
+    pub async fn load_from_id(pool: &SqlitePool, id: i64) -> Result<Option<Self>> {
         Self::from_opt_rawpkg(pool, RawPackage::from_id(pool, id).await?).await
     }
 
-    /// Fetches existing package from name and version
-    pub async fn from_namver(
+    /// Loads existing package from name and version; used within the [Package::from_namver] method; includes dependents
+    pub async fn load_from_namver(
         pool: &SqlitePool,
         name: String,
         version: String,
@@ -69,8 +89,8 @@ impl Package {
         Self::from_opt_rawpkg(pool, RawPackage::from_namver(pool, name, version).await?).await
     }
 
-    /// Fetches package dependents
-    async fn fetch_depends_on(mut self, pool: &SqlitePool) -> Result<Self> {
+    /// Loads package dependents
+    async fn load_depends_on(mut self, pool: &SqlitePool) -> Result<Self> {
         let records = sqlx::query!("SELECT target_id FROM depends WHERE id=?", self.id)
             .fetch_all(pool)
             .await?;
@@ -85,7 +105,7 @@ impl Package {
     ) -> Result<Option<Self>> {
         match opt_rawpkg.into() {
             Some(rawpkg) => Self::from(rawpkg)
-                .fetch_depends_on(pool)
+                .load_depends_on(pool)
                 .await
                 .and_then(|pkg| Ok(Some(pkg))),
             None => Ok(None),

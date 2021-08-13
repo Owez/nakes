@@ -14,7 +14,11 @@ Taken from the help page of a recent build:
 Usage: nakes [COMMAND] [OPTIONS]
 
 COMMANDS:
-  install [pkg]    installs a package to venv
-  uninstall [pkg]  removes a package from venv
-  help             shows this message
+  init              creates a new nakes proj
+  install [pkg]     installs a package to venv
+  uninstall [pkg]   removes a package from venv
+  help              shows this message
+
+OPTIONS:
+  --lockfile [uri]  custom lockfile uri
 ```

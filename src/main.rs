@@ -18,6 +18,7 @@ const DEFAULT_LOCKFILE: &str = "sqlite://nakes.lock";
 /// Small integrated argument parser, this enum represents all possible commands
 #[derive(Debug)]
 enum ArgParse {
+    Init,
     Install,
     Uninstall,
 }
@@ -62,6 +63,7 @@ impl ArgParse {
         }
 
         let command = match args[1].as_str() {
+            "init" => ArgParse::Init,
             "install" => ArgParse::Install,
             "uninstall" | "remove" => ArgParse::Uninstall,
             unknown => {
@@ -81,7 +83,7 @@ impl ArgParse {
         const CLI_USAGE: &str = "nakes [COMMAND] [OPTIONS]";
         const CLI_DESCRIPTION: &str = "the simple python packaging tool ✨";
 
-        format!("Usage: {}\n\nnakes\n  {}\n\nCOMMANDS:\n  install [pkg]     installs a package to venv\n  uninstall [pkg]   removes a package from venv\n  help              shows this message\n\nOPTIONS:\n  --lockfile [uri]  custom lockfile uri", CLI_USAGE, CLI_DESCRIPTION)
+        format!("Usage: {}\n\nnakes\n  {}\n\nCOMMANDS:\n  init              creates a new nakes proj\n  install [pkg]     installs a package to venv\n  uninstall [pkg]   removes a package from venv\n  help              shows this message\n\nOPTIONS:\n  --lockfile [uri]  custom lockfile uri", CLI_USAGE, CLI_DESCRIPTION)
     }
 
     fn err_msg() -> String {

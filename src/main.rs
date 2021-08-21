@@ -116,6 +116,7 @@ async fn main() {
     let _pool = get_pool(&args).await;
 
     match command {
-        _ => todo!("finish command")
+        ArgParse::Init => todo!("init using include_bytes! macro"),
+        _ => todo!("finish command"),
     }
 }

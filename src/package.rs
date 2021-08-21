@@ -58,13 +58,11 @@ impl Package {
             .and_then(|resp| resp.json())
             .await?;
 
-        let depends_on_pkgs = Self::unpack_requires(ue(ue(json.get("info"))?.get("requires_dist"))?)?; // TODO: move from self
+        let depends_on_pkgs =
+            Self::unpack_requires(ue(ue(json.get("info"))?.get("requires_dist"))?)?; // TODO: move from self
         let _release = ue(ue(json.get("releases"))?.get(version))?;
 
-
-        for depends in depends_on_pkgs {
-
-        }
+        for depends in depends_on_pkgs {}
 
         todo!()
     }

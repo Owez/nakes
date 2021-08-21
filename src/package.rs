@@ -187,10 +187,9 @@ impl PackageLoad for SqlPackage {
         Ok(query.fetch_optional(pool).await?)
     }
 
-    async fn load_hash(_pool: &SqlitePool, _hash: String) -> Result<Option<Self>> {
-        // let query = sqlx::query_as!(Self, "SELECT * FROM package WHERE hash=?", hash);
-        // Ok(query.fetch_optional(pool).await?)
-        todo!("fix load hash for sqlpackage")
+    async fn load_hash(pool: &SqlitePool, hash: String) -> Result<Option<Self>> {
+        let query = sqlx::query_as!(Self, "SELECT * FROM package WHERE hash=?", hash);
+        Ok(query.fetch_optional(pool).await?)
     }
 }
 

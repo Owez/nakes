@@ -1,6 +1,6 @@
 //! Contains [Result], [Error] and implementations
 
-use std::fmt;
+use std::{fmt, io};
 
 /// Crate-focused result, using the [Error] enumeration
 pub type Result<T> = std::result::Result<T, Error>;
@@ -16,6 +16,8 @@ pub enum Error {
     InvalidDatabase(sqlx::Error),
     /// Invalid package (json) schema error
     InvalidPackageSchema,
+    /// Lockfile creation error
+    LockfileCreation(io::Error),
 }
 
 impl fmt::Display for Error {
@@ -25,6 +27,7 @@ impl fmt::Display for Error {
             Error::Request(err) => write!(f, "Request error ({})", err),
             Error::InvalidDatabase(err) => write!(f, "Failed to connect to lockfile ({:?})", err),
             Error::InvalidPackageSchema => write!(f, "Invalid package (json) schema"),
+            Error::LockfileCreation(err) => write!(f, "Lockfile creation error ({:?})", err),
         }
     }
 }

@@ -14,7 +14,7 @@ Taken from the help page of a recent build:
 Usage: nakes [COMMAND] [OPTIONS]
 
 COMMANDS:
-  init              creates a new nakes proj
+  init              creates a new, empty project
   install [pkg]     installs a package to venv
   uninstall [pkg]   removes a package from venv
   help              shows this message

@@ -4,7 +4,10 @@
 #![deny(missing_docs)]
 #![feature(format_args_nl)]
 
+pub(crate) mod log;
+
 mod errors;
+mod init;
 mod package;
 
 pub use errors::{Error, Result};
@@ -83,7 +86,7 @@ impl ArgParse {
         const CLI_USAGE: &str = "nakes [COMMAND] [OPTIONS]";
         const CLI_DESCRIPTION: &str = "the simple python packaging tool ✨";
 
-        format!("Usage: {}\n\nnakes\n  {}\n\nCOMMANDS:\n  init              creates a new empty nakes proj\n  install [pkg]     installs a package to venv\n  uninstall [pkg]   removes a package from venv\n  help              shows this message\n\nOPTIONS:\n  --lockfile [uri]  custom lockfile uri", CLI_USAGE, CLI_DESCRIPTION)
+        format!("Usage: {}\n\nnakes\n  {}\n\nCOMMANDS:\n  init              creates a new, empty project\n  install [pkg]     installs a package to venv\n  uninstall [pkg]   removes a package from venv\n  help              shows this message\n\nOPTIONS:\n  --lockfile [uri]  custom lockfile uri", CLI_USAGE, CLI_DESCRIPTION)
     }
 
     fn err_msg() -> String {
@@ -116,7 +119,9 @@ async fn main() {
     let _pool = get_pool(&args).await;
 
     match command {
-        ArgParse::Init => todo!("init using include_bytes! macro"),
+        ArgParse::Init => init::run(),
         _ => todo!("finish command"),
     }
+    .map_err(|err| log::fatal(err))
+    .unwrap();
 }

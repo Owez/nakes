@@ -57,7 +57,14 @@ impl Package {
         let json: Value = reqwest::get(pypi!(name))
             .and_then(|resp| resp.json())
             .await?;
+
+        let depends_on_pkgs = Self::unpack_requires(ue(ue(json.get("info"))?.get("requires_dist"))?)?; // TODO: move from self
         let _release = ue(ue(json.get("releases"))?.get(version))?;
+
+
+        for depends in depends_on_pkgs {
+
+        }
 
         todo!()
     }
@@ -112,6 +119,11 @@ impl Package {
         }
 
         Ok(())
+    }
+
+    /// Unpacks a json `requires_dist` value from pypi into a vector of dependencies
+    fn unpack_requires(_value: &Value) -> Result<Vec<Self>> {
+        todo!("unpack packages from json value")
     }
 }
 
@@ -177,7 +189,7 @@ impl PackageLoad for SqlPackage {
         Ok(query.fetch_optional(pool).await?)
     }
 
-    async fn load_hash(pool: &SqlitePool, hash: String) -> Result<Option<Self>> {
+    async fn load_hash(_pool: &SqlitePool, _hash: String) -> Result<Option<Self>> {
         // let query = sqlx::query_as!(Self, "SELECT * FROM package WHERE hash=?", hash);
         // Ok(query.fetch_optional(pool).await?)
         todo!("fix load hash for sqlpackage")

@@ -83,7 +83,7 @@ impl ArgParse {
         const CLI_USAGE: &str = "nakes [COMMAND] [OPTIONS]";
         const CLI_DESCRIPTION: &str = "the simple python packaging tool ✨";
 
-        format!("Usage: {}\n\nnakes\n  {}\n\nCOMMANDS:\n  init              creates a new nakes proj\n  install [pkg]     installs a package to venv\n  uninstall [pkg]   removes a package from venv\n  help              shows this message\n\nOPTIONS:\n  --lockfile [uri]  custom lockfile uri", CLI_USAGE, CLI_DESCRIPTION)
+        format!("Usage: {}\n\nnakes\n  {}\n\nCOMMANDS:\n  init              creates a new empty nakes proj\n  install [pkg]     installs a package to venv\n  uninstall [pkg]   removes a package from venv\n  help              shows this message\n\nOPTIONS:\n  --lockfile [uri]  custom lockfile uri", CLI_USAGE, CLI_DESCRIPTION)
     }
 
     fn err_msg() -> String {
@@ -92,21 +92,30 @@ impl ArgParse {
 }
 
 /// Gets pool from args location
-async fn get_pool(args: &ArgParseMeta) -> Result<SqlitePool> {
-    SqlitePool::connect(
+async fn get_pool(args: &ArgParseMeta) -> SqlitePool {
+    let pool_res = SqlitePool::connect(
         args.lockfile
             .as_ref()
             .unwrap_or(&DEFAULT_LOCKFILE.to_string()),
     )
     .await
-    .map_err(|err| Error::InvalidDatabase(err))
+    .map_err(|err| Error::InvalidDatabase(err));
+
+    match pool_res {
+        Ok(pool) => pool,
+        Err(err) => {
+            eprintln!("{}", err);
+            process::exit(1);
+        }
+    }
 }
 
 #[tokio::main]
 async fn main() {
     let (command, args) = ArgParse::launch();
-    let pool = get_pool(&args).await;
+    let _pool = get_pool(&args).await;
 
-    println!("Command to do: {:?}", command);
-    println!("Pool: {:?}", pool);
+    match command {
+        _ => todo!("finish command")
+    }
 }
